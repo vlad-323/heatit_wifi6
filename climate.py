@@ -60,6 +60,7 @@ class HeatitWiFi6Thermostat(ClimateEntity):
 
         self._info_currentPower = None
         self._info_totalConsumption = None
+        self._info_internalTemperature = None
         self._info_externalTemperature = None
         self._info_floorTemperature = None
         self._param_sensorMode = None
@@ -104,7 +105,10 @@ class HeatitWiFi6Thermostat(ClimateEntity):
     async def async_update(self):
         data = await self._api.get_status()
         if data:
-            self._temperature = data.get("internalTemperature", None)
+            match data.get("parameters",{}).get("sensorMode", None):              # return temp depending on used sensor (sensorMode)
+                case 0: self._temperature = data.get("floorTemperature", None)         # mode: F
+                case 3 | 4: self._temperature = data.get("externalTemperature", None)  # mode: A2, A2F
+                case _: self._temperature = data.get("internalTemperature", None)      # all other modes: A, AF, PWER
             self._param_operatingMode = data.get("parameters").get("operatingMode")
             self._hvac_mode = await self._heatit_operatingmode_to_hvac_mode(self._param_operatingMode)
             self._hvac_action =  await self._heatit_state_to_hvac_action(data.get("state"))  # note: _hvac_mode should be set before _hvac_action.
@@ -115,6 +119,7 @@ class HeatitWiFi6Thermostat(ClimateEntity):
 
             self._info_currentPower = data.get("currentPower", None)
             self._info_totalConsumption = data.get("totalConsumption", None)
+            self._info_internalTemperature = data.get("internalTemperature", None)
             self._info_externalTemperature = data.get("externalTemperature", None)
             self._info_floorTemperature = data.get("floorTemperature", None)
 
@@ -220,6 +225,7 @@ class HeatitWiFi6Thermostat(ClimateEntity):
        return {
             "info_currentPower": self._info_currentPower,
             "info_totalConsumption": self._info_totalConsumption,
+            "info_internalTemperature": self._info_internalTemperature,
             "info_externalTemperature": self._info_externalTemperature,
             "info_floorTemperature": self._info_floorTemperature,
 

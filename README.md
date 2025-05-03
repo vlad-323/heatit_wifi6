@@ -34,5 +34,13 @@ This software was made by 3rd party. The device manufacturer ("Heatit") has no a
     Be careful, especially with configuration parameters.
 * The kWh meter on thermostat device can reset to zero using an http request using delete method direct to the device path: /api/reset/kwh
 
+## Version History
+
+* 0.9.4
+    * The current temperature is now based on the **sensorMode** configured on the device. 
+      Temperature source can be floor, internal or external sensor.
+* 0.9.3
+    * Initial Release
+
 ## License
 This software is licensed under MIT License.
